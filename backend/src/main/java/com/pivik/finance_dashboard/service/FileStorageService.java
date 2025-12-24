@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.nio.file.*;
 import java.util.UUID;
 
-@Service // Tells Spring: "This is a utility worker"
+@Service // Utility worker to save the folder on my device
 public class FileStorageService {
 
     // The folder where files will live
@@ -28,7 +28,7 @@ public class FileStorageService {
             // 2. Figure out the destination path
             Path targetLocation = this.storageLocation.resolve(fileName);
             
-            // 3. Copy the bits! (StandardCopyOption.REPLACE_EXISTING handles duplicates)
+            // 3. Copy the bits
             Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
             
             return fileName;

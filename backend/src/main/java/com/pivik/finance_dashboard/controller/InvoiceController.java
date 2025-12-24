@@ -41,21 +41,20 @@ public class InvoiceController {
 
     @PostMapping("/upload")
     public ResponseEntity<Invoice> uploadInvoice(@RequestParam("file") MultipartFile file) {
-        // 1. Save File
+        // Save File
         String fileName = fileStorageService.storeFile(file);
         
-        // 2. Read PDF (OCR)
+        // Read PDF 
         String extractedText = pdfExtractionService.extractText("uploads/" + fileName);
         
-        // 3. Get Clean JSON from AI
+        // Get Clean JSON from AI
         String jsonResponse = openAiService.extractInvoiceDetails(extractedText);
         System.out.println("Clean JSON from AI: " + jsonResponse);
 
-        // 4. NEW: Convert JSON String -> Invoice Object
+        // Convert JSON String to Invoice Object
         Invoice invoice = new Invoice();
         try {
-            // This magic line fills the invoice object with data from the JSON string!
-            // It matches "vendor" in JSON to "vendor" in Java.
+            // Creates maches between JSON and Java
             invoice = objectMapper.readValue(jsonResponse, Invoice.class);
         } catch (Exception e) {
             System.out.println("Error parsing JSON: " + e.getMessage());
@@ -63,11 +62,11 @@ public class InvoiceController {
             invoice.setVendor("Parsing Error");
         }
 
-        // 5. Add the file link and Status
+        // Add the file link and status
         invoice.setFileUrl(fileName);
         invoice.setStatus("AI_PROCESSED");
 
-        // 6. Save to Database
+        // Save to Database
         Invoice savedInvoice = invoiceRepository.save(invoice);
         return ResponseEntity.ok(savedInvoice);
     }

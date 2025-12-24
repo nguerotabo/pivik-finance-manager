@@ -51,7 +51,7 @@ public class OpenAiService {
             HttpClient client = HttpClient.newHttpClient();
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
-            // 3. NEW: Parse the Response to get ONLY the 'content'
+            // 3. Parse the Response to get the important info
             return extractContentFromOpenAiResponse(response.body());
 
         } catch (Exception e) {
@@ -60,16 +60,15 @@ public class OpenAiService {
         }
     }
 
-    // Helper method to dig through the big OpenAI response
+    // Helper method to get the important info from OpenAI response
     private String extractContentFromOpenAiResponse(String rawResponse) {
         try {
-            // Convert String -> JSON Tree
+            // Convert string to JSON tree
             JsonNode rootNode = objectMapper.readTree(rawResponse);
             
-            // Dig down: choices -> [0] -> message -> content
             String content = rootNode.path("choices").get(0).path("message").path("content").asText();
             
-            // Clean up: Remove markdown code blocks (```json ... ```)
+            // Clean up the JSON
             content = content.replace("```json", "").replace("```", "").trim();
             
             return content; // Now we just have clean JSON: { "vendor": "Costco", ... }

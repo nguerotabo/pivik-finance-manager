@@ -6,6 +6,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class FinanceDashboardApplication {
 
+	//run backend
 	public static void main(String[] args) {
 		SpringApplication.run(FinanceDashboardApplication.class, args);
 	}
