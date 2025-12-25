@@ -25,3 +25,12 @@ I built this dashboard to automate that problem. By integrating AI-driven docume
 **AI/ML:** OpenAI API, Apache PDFBox 
 
 **Tools:** Git, VScode
+
+
+**Design Principles:**
+
+**Single Responsibility Principle:** I made sure to create a class for every major part of the web-app or methods that achieve exactly one task to simplify debugging.
+
+**Model View Controller:** The design principle that I based my app development on was the Model View Controller (MVC) to simplify implementation and support maintainance in the long run.
+
+**Services:** I created different services (OpenAi, document extracting, etc...) to make sure each "worker" only has one utility task to perform. 
