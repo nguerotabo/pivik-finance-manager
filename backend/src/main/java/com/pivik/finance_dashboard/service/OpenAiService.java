@@ -27,6 +27,10 @@ public class OpenAiService {
             String prompt = "Analyze this invoice text and return a JSON object with these exact fields: " +
                             "vendor (string), amount (number), date (YYYY-MM-DD), category (string). " +
                             "Return ONLY valid JSON. No markdown formatting. Text: " + 
+                            "Rules: \n" +
+                            "1. Vendor name: standardize names to main brands (ex. if you see 'Whse 802' or 'Costco Wholesale', return Costco.\n" +
+                            "2. Categories: Choose between these categories: [Groceries, Equipment, Services, Utilities, Other, Food, Snacks] \n" +
+                            "3. Return only valid JSON text" +
                             invoiceText.replace("\"", "'").replace("\n", " ");
 
             String requestBody = """
