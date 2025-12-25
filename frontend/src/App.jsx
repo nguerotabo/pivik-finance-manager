@@ -1,14 +1,18 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { 
   Container, Typography, Table, TableBody, 
-  TableCell, TableContainer, TableHead, TableRow, Paper, Button, Box, Card, CardContent 
+  TableCell, TableContainer, TableHead, TableRow, Paper, Button, Box, Card, CardContent, IconButton 
 } from '@mui/material';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
+import DeleteIcon from '@mui/icons-material/Delete'; 
+
+// 🛑 CHART PAUSED (Commented out to stop crashes)
+// import { BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';
 
 function App() {
   const [invoices, setInvoices] = useState([]);
+  const fileInputRef = useRef(null);
 
   const fetchInvoices = () => {
     fetch('http://localhost:8080/api/invoices')
@@ -36,22 +40,33 @@ function App() {
     .then(data => {
       console.log("Success:", data);
       fetchInvoices();
+      event.target.value = null; 
     })
     .catch(error => console.error('Error:', error));
   };
 
-  // Calculate Total Spend
-  // We use .reduce() to loop through all invoices and add up the amounts
+  const handleDelete = (id) => {
+    if(window.confirm("Delete this invoice?")) {
+        fetch(`http://localhost:8080/api/invoices/${id}`, {
+            method: 'DELETE',
+        })
+        .then(() => {
+            fetchInvoices(); 
+        })
+        .catch(error => console.error('Error deleting:', error));
+    }
+  };
+
   const totalSpend = invoices.reduce((sum, invoice) => sum + (invoice.amount || 0), 0);
 
   return (
-    <Container maxWidth="md" sx={{ mt: 4 }}>
+    <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
       <Typography variant="h4" gutterBottom sx={{ fontWeight: 'bold', color: '#1976d2' }}>
-      PIVIK Finance Dashboard
+        🚀 PIVIK Finance Dashboard
       </Typography>
 
-      {/* Summary Card */}
-      <Card sx={{ mb: 4, backgroundColor: '#e3f2fd' }}>
+      {/* Stats Card */}
+      <Card sx={{ mb: 4, backgroundColor: '#e3f2fd', maxWidth: 400 }}>
         <CardContent sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
           <AttachMoneyIcon sx={{ fontSize: 40, color: '#1565c0' }} />
           <Box>
@@ -63,18 +78,22 @@ function App() {
         </CardContent>
       </Card>
 
+      {/* 🛑 CHART REMOVED FOR TESTING */}
+
+      {/* Upload Button */}
       <Box sx={{ mb: 3 }}>
+        <input type="file" hidden ref={fileInputRef} onChange={handleFileUpload} />
         <Button
-          component="label"
           variant="contained"
           startIcon={<CloudUploadIcon />}
           size="large"
+          onClick={() => fileInputRef.current.click()} 
         >
-          Upload Invoice
-          <input type="file" hidden onChange={handleFileUpload} />
+          Upload New Invoice
         </Button>
       </Box>
 
+      {/* Table */}
       <TableContainer component={Paper} elevation={3}>
         <Table>
           <TableHead>
@@ -85,19 +104,27 @@ function App() {
               <TableCell><strong>Amount</strong></TableCell>
               <TableCell><strong>Category</strong></TableCell>
               <TableCell><strong>Status</strong></TableCell>
+              <TableCell align="center"><strong>Actions</strong></TableCell> 
             </TableRow>
           </TableHead>
           <TableBody>
             {invoices.map((invoice) => (
               <TableRow key={invoice.id} hover>
                 <TableCell>{invoice.id}</TableCell>
-                <TableCell>{invoice.vendor}</TableCell>
+                <TableCell sx={{ fontWeight: 'bold' }}>{invoice.vendor}</TableCell>
                 <TableCell>{invoice.date}</TableCell>
-                <TableCell sx={{ fontWeight: 'bold' }}>
-                  {invoice.amount ? `$${invoice.amount.toFixed(2)}` : '-'}
+                <TableCell>{invoice.amount ? `$${invoice.amount.toFixed(2)}` : '-'}</TableCell>
+                <TableCell>
+                    <Box sx={{ bgcolor: '#e8f5e9', color: '#2e7d32', p: 0.5, borderRadius: 1, textAlign: 'center', fontSize: '0.8rem', fontWeight: 'bold' }}>
+                        {invoice.category || 'Other'}
+                    </Box>
                 </TableCell>
-                <TableCell>{invoice.category}</TableCell>
                 <TableCell>{invoice.status}</TableCell>
+                <TableCell align="center">
+                  <IconButton color="error" onClick={() => handleDelete(invoice.id)}>
+                    <DeleteIcon />
+                  </IconButton>
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>
