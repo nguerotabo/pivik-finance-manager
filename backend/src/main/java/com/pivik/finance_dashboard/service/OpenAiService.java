@@ -27,7 +27,7 @@ public class OpenAiService {
         try {
             // 1. Prepare the Prompt (Clearer structure)
             String prompt = "Analyze this invoice text and return a JSON object with these exact fields: " +
-                            "vendor (string), amount (number), date (YYYY-MM-DD), category (string). " +
+                            "vendor (string), invoiceNumber (string), amount (number), date (YYYY-MM-DD), category (string). " +
                             "Rules:\n" +
                             "1. Vendor: Standardize to main brand (e.g., 'Whse 802' -> 'Costco').\n" +
                             "2. Category: Choose one: [Groceries, Equipment, Services, Utilities, Other].\n" +
@@ -64,7 +64,7 @@ public class OpenAiService {
             HttpClient client = HttpClient.newHttpClient();
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
-            // 🔍 DEBUGGING: Print what OpenAI actually said!
+            // Print what OpenAI actually said!
             System.out.println("Status Code: " + response.statusCode());
             System.out.println("OpenAI Raw Response: " + response.body());
 

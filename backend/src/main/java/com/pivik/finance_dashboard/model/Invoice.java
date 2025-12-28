@@ -20,6 +20,7 @@ public class Invoice {
 
     // The fields of my table
     private String vendor;       //
+    private String invoiceNumber;
     private Double amount;       //
     private LocalDate date;      // date
     private String category;     // snacks, drinks?

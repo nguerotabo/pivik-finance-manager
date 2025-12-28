@@ -6,6 +6,9 @@ import com.pivik.finance_dashboard.service.FileStorageService;
 import com.pivik.finance_dashboard.service.PdfExtractionService;
 import com.pivik.finance_dashboard.service.OpenAiService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.pivik.finance_dashboard.service.ReportService;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -64,13 +67,13 @@ public class InvoiceController {
 
         // Add the file link and status
         invoice.setFileUrl(fileName);
-        invoice.setStatus("AI_PROCESSED");
+        invoice.setStatus("On Payment Term");
 
         // Save to Database
         Invoice savedInvoice = invoiceRepository.save(invoice);
         return ResponseEntity.ok(savedInvoice);
     }
-    
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteInvoice(@PathVariable Long id) {
         if (invoiceRepository.existsById(id)) {
@@ -78,5 +81,53 @@ public class InvoiceController {
             return ResponseEntity.noContent().build();
         }
         return ResponseEntity.notFound().build();
+    }
+
+    @Autowired
+    private ReportService reportService; 
+
+    @GetMapping("/report")
+    public ResponseEntity<byte[]> downloadReport(
+            @RequestParam("startDate") String startDateStr,
+            @RequestParam("endDate") String endDateStr) {
+        
+        // Convert String (from frontend) to LocalDate (for Java)
+        LocalDate startDate = LocalDate.parse(startDateStr);
+        LocalDate endDate = LocalDate.parse(endDateStr);
+
+        byte[] pdfBytes = reportService.generateWeeklyReport(startDate, endDate);
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=weekly_report.pdf")
+                .contentType(MediaType.APPLICATION_PDF)
+                .body(pdfBytes);
+    }
+
+    //  Update Status Endpoint
+    @PutMapping("/{id}/status")
+    public ResponseEntity<Invoice> updateStatus(@PathVariable Long id, @RequestParam String status) {
+        return invoiceRepository.findById(id)
+                .map(invoice -> {
+                    invoice.setStatus(status);
+                    return ResponseEntity.ok(invoiceRepository.save(invoice));
+                })
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    // Download ZIP bundle
+    @GetMapping("/export-zip")
+    public ResponseEntity<byte[]> downloadZipBundle(
+            @RequestParam("startDate") String startDateStr,
+            @RequestParam("endDate") String endDateStr) {
+        
+        LocalDate startDate = LocalDate.parse(startDateStr);
+        LocalDate endDate = LocalDate.parse(endDateStr);
+
+        byte[] zipBytes = reportService.generateZipBundle(startDate, endDate);
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=Weekly_Payment_Run.zip")
+                .contentType(MediaType.APPLICATION_OCTET_STREAM) // Use generic binary type for Zip
+                .body(zipBytes);
     }
 }
