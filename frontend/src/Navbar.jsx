@@ -12,6 +12,7 @@ function Navbar() {
             {/* The "Link" component changes the URL without reloading */}
             <Button color="inherit" component={Link} to="/">Dashboard</Button>
             <Button color="inherit" component={Link} to="/suppliers">Suppliers</Button>
+            <Button color="inherit" component={Link} to="/archive">Archive</Button>
         </Box>
       </Toolbar>
     </AppBar>

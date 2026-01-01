@@ -85,9 +85,11 @@ function Dashboard() {
   };
 
   const totalSpend = invoices.reduce((sum, invoice) => sum + (invoice.amount || 0), 0);
+  
+  const pendingInvoices = invoices.filter(invoice => invoice.status !== 'PAID');
 
   return (
-    <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
+    <Container maxWidth={false} sx={{ mt: 4, mb: 4, px: 4 }}>
       <Typography variant="h4" gutterBottom sx={{ fontWeight: 'bold', color: '#1976d2' }}>
         PIVIK Finance Dashboard
       </Typography>
@@ -180,7 +182,7 @@ function Dashboard() {
           </TableHead>
           <TableBody>
             {/* PAGINATION */}
-            {invoices
+            {pendingInvoices
               .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
               .map((invoice) => (
               <TableRow key={invoice.id} hover>
@@ -226,7 +228,7 @@ function Dashboard() {
         <TablePagination
           rowsPerPageOptions={[5, 8, 10, 25]}
           component="div"
-          count={invoices.length}
+          count={pendingInvoices.length}
           rowsPerPage={rowsPerPage}
           page={page}
           onPageChange={handleChangePage}
