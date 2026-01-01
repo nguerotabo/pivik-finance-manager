@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { Container, Typography, Paper, Grid, Card, CardContent, Box } from '@mui/material';
-// We import Recharts components safely
 import { BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer, Cell } from 'recharts';
 
 function Suppliers() {

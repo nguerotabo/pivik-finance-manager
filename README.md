@@ -2,6 +2,7 @@ As the Operations Coordinator for a store generating $1M+ in annual revenue, I w
 
 I built this dashboard to automate that problem. By integrating AI-driven document parsing, I increased invoice processing efficiency by ~50%, allowing the team to focus on store strategy rather than data entry. The web-app also allows to track expenses per vendor, store revenue, generating reports over customizable dates and a searchable invoice archive using PostgreSQL.
 
+Google Gemini AI was utilized in the conception to help. 
 
 **Key Features:**
 

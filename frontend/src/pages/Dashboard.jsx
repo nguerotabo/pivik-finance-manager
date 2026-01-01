@@ -2,30 +2,36 @@ import { useEffect, useState, useRef } from 'react';
 import { 
   Chip, Container, Typography, Table, TableBody, 
   TableCell, TableContainer, TableHead, TableRow, Paper, Button, Box, Card, CardContent, IconButton,
-  TablePagination 
+  TablePagination, Dialog, DialogTitle, DialogContent, DialogActions, TextField 
 } from '@mui/material';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import DeleteIcon from '@mui/icons-material/Delete'; 
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import EditIcon from '@mui/icons-material/Edit';
 
 function Dashboard() {
   const [invoices, setInvoices] = useState([]);
   const fileInputRef = useRef(null);
   
-  // Report dates
+  // Report Dates
   const [startDate, setStartDate] = useState(new Date().toISOString().slice(0, 10));
   const [endDate, setEndDate] = useState(new Date().toISOString().slice(0, 10));
 
-  // Pagination 
+  // Pagination & View
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(8);
+  const [showHistory, setShowHistory] = useState(false); // Default: Hide Paid items
+
+  // EDITOR STATE
+  const [openEdit, setOpenEdit] = useState(false);
+  const [currentInvoice, setCurrentInvoice] = useState(null);
+  const [editForm, setEditForm] = useState({ vendor: '', invoiceNumber: '', amount: '', date: '', category: '' });
 
   const fetchInvoices = () => {
     fetch('http://localhost:8080/api/invoices')
       .then(response => response.json())
       .then(data => {
-        // Sort... newest ID first
         const sortedData = data.sort((a, b) => b.id - a.id);
         setInvoices(sortedData);
       })
@@ -48,45 +54,70 @@ function Dashboard() {
       body: formData,
     })
     .then(response => response.json())
-    .then(data => {
-      console.log("Success:", data);
+    .then(() => {
       fetchInvoices();
       event.target.value = null; 
-    })
-    .catch(error => console.error('Error:', error));
+    });
   };
 
   const handleDelete = (id) => {
     if(window.confirm("Delete this invoice?")) {
-        fetch(`http://localhost:8080/api/invoices/${id}`, {
-            method: 'DELETE',
-        })
-        .then(() => fetchInvoices())
-        .catch(error => console.error('Error deleting:', error));
+        fetch(`http://localhost:8080/api/invoices/${id}`, { method: 'DELETE' })
+        .then(() => fetchInvoices());
     }
   };
 
   const handleMarkPaid = (id) => {
-    fetch(`http://localhost:8080/api/invoices/${id}/status?status=PAID`, {
-        method: 'PUT',
-    })
-    .then(() => fetchInvoices())
-    .catch(error => console.error('Error updating status:', error));
+    fetch(`http://localhost:8080/api/invoices/${id}/status?status=PAID`, { method: 'PUT' })
+    .then(() => fetchInvoices());
   };
 
-  // Pagination handlers
+  // OPEN EDITOR
+  const handleEditClick = (invoice) => {
+    setCurrentInvoice(invoice);
+    // Pre-fill form with existing data (or empty strings to avoid null errors)
+    setEditForm({
+        vendor: invoice.vendor || '',
+        invoiceNumber: invoice.invoiceNumber || '',
+        amount: invoice.amount || '',
+        date: invoice.date || '',
+        category: invoice.category || ''
+    });
+    setOpenEdit(true);
+  };
+
+  // SAVE CHANGES
+  const handleSaveEdit = () => {
+    fetch(`http://localhost:8080/api/invoices/${currentInvoice.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(editForm)
+    })
+    .then(() => {
+        setOpenEdit(false);
+        fetchInvoices(); 
+    });
+  };
+
+  // Pagination Handlers
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
-
   const handleChangeRowsPerPage = (event) => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
   };
 
-  const totalSpend = invoices.reduce((sum, invoice) => sum + (invoice.amount || 0), 0);
-  
+  // STATS CALCULATION
   const pendingInvoices = invoices.filter(invoice => invoice.status !== 'PAID');
+  const paidInvoices = invoices.filter(invoice => invoice.status === 'PAID');
+
+  const totalDue = pendingInvoices.reduce((sum, inv) => sum + (inv.amount || 0), 0);
+  const totalPaid = paidInvoices.reduce((sum, inv) => sum + (inv.amount || 0), 0);
+
+  // FILTER THE LIST FOR DISPLAY
+  // If 'showHistory' is true, show everything. If false, show only Pending.
+  const displayInvoices = showHistory ? invoices : pendingInvoices;
 
   return (
     <Container maxWidth={false} sx={{ mt: 4, mb: 4, px: 4 }}>
@@ -94,71 +125,78 @@ function Dashboard() {
         PIVIK Finance Dashboard
       </Typography>
 
-      {/* Stats Card */}
-      <Card sx={{ mb: 4, backgroundColor: '#e3f2fd', maxWidth: 400 }}>
-        <CardContent sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-          <AttachMoneyIcon sx={{ fontSize: 40, color: '#1565c0' }} />
-          <Box>
-            <Typography variant="h6" color="text.secondary">Total Expenses</Typography>
-            <Typography variant="h4" sx={{ fontWeight: 'bold' }}>
-              ${totalSpend.toFixed(2)}
-            </Typography>
-          </Box>
-        </CardContent>
-      </Card>
+      {/* SPLIT STATS CARDS */}
+      <Box sx={{ display: 'flex', gap: 3, mb: 4 }}>
+          {/* Card 1: Due Now */}
+          <Card sx={{ flex: 1, bgcolor: '#fff3e0', borderLeft: '5px solid #ff9800' }}>
+            <CardContent sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+              <AttachMoneyIcon sx={{ fontSize: 40, color: '#e65100' }} />
+              <Box>
+                <Typography variant="body2" color="text.secondary">Amount Due (Pending)</Typography>
+                <Typography variant="h4" sx={{ fontWeight: 'bold', color: '#e65100' }}>
+                  ${totalDue.toFixed(2)}
+                </Typography>
+              </Box>
+            </CardContent>
+          </Card>
 
-      {/* Controls area */}
+          {/* Card 2: Total Paid */}
+          <Card sx={{ flex: 1, bgcolor: '#e8f5e9', borderLeft: '5px solid #2e7d32' }}>
+            <CardContent sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+              <CheckCircleIcon sx={{ fontSize: 40, color: '#2e7d32' }} />
+              <Box>
+                <Typography variant="body2" color="text.secondary">Total Paid (YTD)</Typography>
+                <Typography variant="h4" sx={{ fontWeight: 'bold', color: '#1b5e20' }}>
+                  ${totalPaid.toFixed(2)}
+                </Typography>
+              </Box>
+            </CardContent>
+          </Card>
+      </Box>
+
+      {/* CONTROLS AREA */}
       <Paper sx={{ p: 2, mb: 3, display: 'flex', alignItems: 'center', justifyContent: 'space-between', backgroundColor: '#f8f9fa' }}>
         
-        {/* Date pickers & downloads */}
         <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
-            <Typography variant="body2" sx={{ fontWeight:'bold' }}>Report Period:</Typography>
+            {/* History Toggle */}
+            <Box sx={{ display: 'flex', alignItems: 'center', bgcolor: '#fff', p: 1, borderRadius: 1, border: '1px solid #ccc' }}>
+                <input 
+                    type="checkbox" 
+                    checked={showHistory} 
+                    onChange={(e) => setShowHistory(e.target.checked)}
+                    style={{ cursor: 'pointer', width: '20px', height: '20px' }}
+                />
+                <Typography sx={{ ml: 1, fontSize: '0.9rem' }}>Show Paid History</Typography>
+            </Box>
+
+            <Typography variant="body2" sx={{ fontWeight:'bold', ml: 2 }}>Report Period:</Typography>
             <input 
-                type="date" 
-                value={startDate} 
-                onChange={(e) => setStartDate(e.target.value)} 
+                type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} 
                 style={{ padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }}
             />
             <Typography>to</Typography>
             <input 
-                type="date" 
-                value={endDate} 
-                onChange={(e) => setEndDate(e.target.value)} 
+                type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} 
                 style={{ padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }}
             />
             
-            {/* PDF Button */}
             <Button 
-                variant="outlined" 
-                color="secondary"
-                size="small"
-                onClick={() => {
-                    window.location.href = `http://localhost:8080/api/invoices/report?startDate=${startDate}&endDate=${endDate}`;
-                }}
+                variant="outlined" color="secondary" size="small"
+                onClick={() => window.location.href = `http://localhost:8080/api/invoices/report?startDate=${startDate}&endDate=${endDate}`}
             >
                 PDF Only
             </Button>
 
-            {/* ZIP Button */}
             <Button 
-                variant="contained" 
-                color="secondary"
-                size="small"
-                onClick={() => {
-                    window.location.href = `http://localhost:8080/api/invoices/export-zip?startDate=${startDate}&endDate=${endDate}`;
-                }}
+                variant="contained" color="secondary" size="small"
+                onClick={() => window.location.href = `http://localhost:8080/api/invoices/export-zip?startDate=${startDate}&endDate=${endDate}`}
             >
                 Download Bundle
             </Button>
         </Box>
 
-        {/* Upload button */}
         <Box>
-            <Button
-                variant="contained"
-                startIcon={<CloudUploadIcon />}
-                onClick={() => fileInputRef.current.click()} 
-            >
+            <Button variant="contained" startIcon={<CloudUploadIcon />} onClick={() => fileInputRef.current.click()}>
                 Upload Invoice
             </Button>
             <input type="file" hidden ref={fileInputRef} onChange={handleFileUpload} />
@@ -181,8 +219,7 @@ function Dashboard() {
             </TableRow>
           </TableHead>
           <TableBody>
-            {/* PAGINATION */}
-            {pendingInvoices
+            {displayInvoices
               .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
               .map((invoice) => (
               <TableRow key={invoice.id} hover>
@@ -197,17 +234,13 @@ function Dashboard() {
                     </Box>
                 </TableCell>
                 
-                {/* status button */}
                 <TableCell>
                     {invoice.status === 'PAID' ? (
                         <Chip label="PAID" color="success" size="small" icon={<CheckCircleIcon />} />
                     ) : (
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                             <Typography variant="body2" color="text.secondary">{invoice.status}</Typography>
-                            <IconButton 
-                                color="success" size="small" title="Mark as Paid"
-                                onClick={() => handleMarkPaid(invoice.id)}
-                            >
+                            <IconButton color="success" size="small" title="Mark as Paid" onClick={() => handleMarkPaid(invoice.id)}>
                                 <CheckCircleIcon />
                             </IconButton>
                         </Box>
@@ -215,6 +248,12 @@ function Dashboard() {
                 </TableCell>
 
                 <TableCell align="center">
+                  {/* EDIT BUTTON */}
+                  <IconButton color="primary" onClick={() => handleEditClick(invoice)}>
+                    <EditIcon />
+                  </IconButton>
+                  
+                  {/* DELETE BUTTON */}
                   <IconButton color="error" onClick={() => handleDelete(invoice.id)}>
                     <DeleteIcon />
                   </IconButton>
@@ -224,18 +263,59 @@ function Dashboard() {
           </TableBody>
         </Table>
 
-        {/* PAGINATION FOOTER */}
         <TablePagination
           rowsPerPageOptions={[5, 8, 10, 25]}
           component="div"
-          count={pendingInvoices.length}
+          count={displayInvoices.length} // Use the filtered count
           rowsPerPage={rowsPerPage}
           page={page}
           onPageChange={handleChangePage}
           onRowsPerPageChange={handleChangeRowsPerPage}
         />
       </TableContainer>
+
+      {/* Edit dialog popup */}
+      <Dialog open={openEdit} onClose={() => setOpenEdit(false)}>
+        <DialogTitle>Edit Invoice</DialogTitle>
+        <DialogContent>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1, minWidth: '300px' }}>
+                <TextField 
+                    label="Vendor" 
+                    value={editForm.vendor} 
+                    onChange={(e) => setEditForm({...editForm, vendor: e.target.value})}
+                />
+                <TextField 
+                    label="Invoice Number" 
+                    value={editForm.invoiceNumber} 
+                    onChange={(e) => setEditForm({...editForm, invoiceNumber: e.target.value})}
+                />
+                <TextField 
+                    label="Amount ($)" 
+                    type="number"
+                    value={editForm.amount} 
+                    onChange={(e) => setEditForm({...editForm, amount: parseFloat(e.target.value)})}
+                />
+                <TextField 
+                    label="Date" 
+                    type="date"
+                    value={editForm.date} 
+                    onChange={(e) => setEditForm({...editForm, date: e.target.value})}
+                    InputLabelProps={{ shrink: true }}
+                />
+                <TextField 
+                    label="Category" 
+                    value={editForm.category} 
+                    onChange={(e) => setEditForm({...editForm, category: e.target.value})}
+                />
+            </Box>
+        </DialogContent>
+        <DialogActions>
+            <Button onClick={() => setOpenEdit(false)}>Cancel</Button>
+            <Button onClick={handleSaveEdit} variant="contained">Save Changes</Button>
+        </DialogActions>
+      </Dialog>
     </Container>
   );
 }
+
 export default Dashboard;
