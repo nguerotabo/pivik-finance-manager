@@ -25,5 +25,10 @@ public class Invoice {
     private LocalDate date;      // date
     private String category;     // snacks, drinks?
     private String status;       // pending or paid
-    private String fileUrl;   // link to the file    
+    private String fileUrl;   // link to the file 
+    private String project; // Will store "FED UP" or null
+
+    //Getters and setters for the FED-UP program.
+    public String getProject() { return project; }
+    public void setProject(String project) { this.project = project; }
 }     

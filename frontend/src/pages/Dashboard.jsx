@@ -81,7 +81,8 @@ function Dashboard() {
         invoiceNumber: invoice.invoiceNumber || '',
         amount: invoice.amount || '',
         date: invoice.date || '',
-        category: invoice.category || ''
+        category: invoice.category || '',
+        project: invoice.project || ''
     });
     setOpenEdit(true);
   };
@@ -214,6 +215,7 @@ function Dashboard() {
               <TableCell><strong>Date</strong></TableCell>
               <TableCell><strong>Amount</strong></TableCell>
               <TableCell><strong>Category</strong></TableCell>
+              <TableCell><strong>Project</strong></TableCell>
               <TableCell><strong>Status</strong></TableCell>
               <TableCell align="center"><strong>Actions</strong></TableCell> 
             </TableRow>
@@ -233,6 +235,11 @@ function Dashboard() {
                         {invoice.category || 'Other'}
                     </Box>
                 </TableCell>
+                <TableCell>
+                  {invoice.project === 'FED UP' && (
+                  <Chip label="FED UP" color="warning" size="small" sx={{ fontWeight: 'bold' }} />
+                  )}
+                </ TableCell>
                 
                 <TableCell>
                     {invoice.status === 'PAID' ? (
@@ -307,6 +314,17 @@ function Dashboard() {
                     value={editForm.category} 
                     onChange={(e) => setEditForm({...editForm, category: e.target.value})}
                 />
+
+                <TextField
+                    select
+                    label="Project / Budget"
+                    value={editForm.project || ""}
+                    onChange={(e) => setEditForm({...editForm, project: e.target.value})}
+                    SelectProps={{ native: true }}
+                >
+                    <option value="">General (No Project)</option>
+                    <option value="FED UP">FED UP ($30k Grant)</option>
+                </TextField>
             </Box>
         </DialogContent>
         <DialogActions>

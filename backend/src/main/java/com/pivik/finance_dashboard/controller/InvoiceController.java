@@ -65,6 +65,7 @@ public class InvoiceController {
                     invoice.setDate(invoiceDetails.getDate());
                     invoice.setAmount(invoiceDetails.getAmount());
                     invoice.setCategory(invoiceDetails.getCategory());
+                    invoice.setProject(invoiceDetails.getProject());
                     return ResponseEntity.ok(invoiceRepository.save(invoice));
                 })
                 .orElse(ResponseEntity.notFound().build());
