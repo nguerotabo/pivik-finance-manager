@@ -46,7 +46,7 @@ function Suppliers() {
 
   return (
     <Container maxWidth={false} sx={{ mt: 4, px: 4 }}>
-      <Typography variant="h4" gutterBottom sx={{ fontWeight: 'bold', color: '#1976d2' }}>
+      <Typography variant="h4" gutterBottom sx={{ fontWeight: 'bold', color: '#000000' }}>
         Supplier Analytics
       </Typography>
 

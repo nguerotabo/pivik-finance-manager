@@ -32,7 +32,7 @@ function FedUp() {
 
   return (
     <Container maxWidth={false} sx={{ mt: 4, px: 4 }}>
-      <Typography variant="h4" gutterBottom sx={{ fontWeight: 'bold', color: '#d84315' }}>
+      <Typography variant="h4" gutterBottom sx={{ fontWeight: 'bold', color: '#000000', textAlign: 'center' }}>
          FED UP Program Tracker
       </Typography>
 

@@ -1,0 +1,23 @@
+/* Import Inter (Text) and Montserrat (Headers) */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Montserrat:wght@600;700;800&display=swap');
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Inter', sans-serif !important; /* Data text stays clean */
+  background-color: #f8f9fa; 
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Make headers BOLD and distinctive */
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Montserrat', sans-serif !important;
+  font-weight: 700; /* Extra bold */
+  letter-spacing: -0.5px; /* Tight and modern */
+  text-transform: uppercase; /* Optional: Makes it look more like a "Section" */
+  color: #2c3e50; /* Dark slate (Professional) instead of generic black */
+}

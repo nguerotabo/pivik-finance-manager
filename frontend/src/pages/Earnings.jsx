@@ -66,7 +66,7 @@ function Earnings() {
 
   return (
     <Container maxWidth={false} sx={{ mt: 4, px: 4 }}>
-      <Typography variant="h4" gutterBottom sx={{ fontWeight: 'bold', color: '#2e7d32' }}>
+      <Typography variant="h4" gutterBottom sx={{ fontWeight: 'bold', color: '#000000' }}>
         Financial Overview
       </Typography>
 

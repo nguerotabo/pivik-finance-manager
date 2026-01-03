@@ -122,19 +122,19 @@ function Dashboard() {
 
   return (
     <Container maxWidth={false} sx={{ mt: 4, mb: 4, px: 4 }}>
-      <Typography variant="h4" gutterBottom sx={{ fontWeight: 'bold', color: '#1976d2' }}>
-        PIVIK Finance Dashboard
-      </Typography>
+      <Typography variant="h4" gutterBottom sx={{ fontWeight: 'bold', color: '#000000', textAlign: 'center', mt: 4 }}>
+        PIVIK Dashboard
+      </Typography> 
 
       {/* SPLIT STATS CARDS */}
       <Box sx={{ display: 'flex', gap: 3, mb: 4 }}>
           {/* Card 1: Due Now */}
-          <Card sx={{ flex: 1, bgcolor: '#fff3e0', borderLeft: '5px solid #ff9800' }}>
+          <Card sx={{ flex: 1, bgcolor: '#808080', borderLeft: '5px solid #000000' }}>
             <CardContent sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-              <AttachMoneyIcon sx={{ fontSize: 40, color: '#e65100' }} />
+              <AttachMoneyIcon sx={{ fontSize: 40, color: '#000000' }} />
               <Box>
                 <Typography variant="body2" color="text.secondary">Amount Due (Pending)</Typography>
-                <Typography variant="h4" sx={{ fontWeight: 'bold', color: '#e65100' }}>
+                <Typography variant="h4" sx={{ fontWeight: 'bold', color: '#000000' }}>
                   ${totalDue.toFixed(2)}
                 </Typography>
               </Box>
