@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 
 function Navbar({ onLogout }) {
   return (
-    <AppBar position="static" sx={{ backgroundColor: '#FFFFFF' }}> {/* Professional Navy Blue */}
+    <AppBar position="static" sx={{ backgroundColor: '#FFFFFF' }}> 
       <Toolbar>
         {/* LOGO AREA */}
         <Box sx={{ flexGrow: 1, display: 'flex', alignItems: 'center' }}>

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { 
   Container, Typography, Paper, Table, TableBody, TableCell, 
   TableContainer, TableHead, TableRow, TextField, InputAdornment, 
-  Chip, IconButton, Tooltip, TablePagination // 👈 Added Pagination Component
+  Chip, IconButton, Tooltip, TablePagination 
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
@@ -13,12 +13,12 @@ function Archive() {
   const [invoices, setInvoices] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   
-  // 📄 Pagination State
+  // PAgination
   const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(5); // Default to 5 rows
+  const [rowsPerPage, setRowsPerPage] = useState(5); 
 
   useEffect(() => {
-    fetch('http://localhost:8080/api/invoices')
+    fetch('http://pivikmanager-env.eba-eybupv2n.us-east-1.elasticbeanstalk.com/api/invoices')
       .then(response => response.json())
       .then(data => setInvoices(data)) 
       .catch(error => console.error('Error:', error));
@@ -26,21 +26,21 @@ function Archive() {
 
   const handleRevertToPending = (id) => {
     if(window.confirm("Move this invoice back to the Dashboard (Pending)?")) {
-        fetch(`http://localhost:8080/api/invoices/${id}/status?status=On Payment Term`, { 
+        fetch(`http://pivikmanager-env.eba-eybupv2n.us-east-1.elasticbeanstalk.com/api/invoices/${id}/status?status=On Payment Term`, { 
             method: 'PUT',
         })
         .then(() => {
-            return fetch('http://localhost:8080/api/invoices').then(res => res.json());
+            return fetch('http://pivikmanager-env.eba-eybupv2n.us-east-1.elasticbeanstalk.com/api/invoices').then(res => res.json());
         })
         .then(data => setInvoices(data));
     }
   };
 
-  // Search Logic: Checks Vendor OR Invoice Number
+  // Search Logic: Checks vendor or invoice number
   const filteredInvoices = invoices.filter(invoice => {
     const searchLower = searchTerm.toLowerCase();
     const vendor = (invoice.vendor || "").toLowerCase();
-    const invNum = (invoice.invoiceNumber || "").toLowerCase(); // 👈 Check Invoice #
+    const invNum = (invoice.invoiceNumber || "").toLowerCase(); 
     
     return vendor.includes(searchLower) || invNum.includes(searchLower);
   });
@@ -66,7 +66,7 @@ function Archive() {
             <TextField 
                 fullWidth 
                 variant="outlined" 
-                placeholder="Search by Vendor or Invoice Number..." // 👈 Updated text
+                placeholder="Search by Vendor or Invoice Number..." 
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 InputProps={{
@@ -86,7 +86,7 @@ function Archive() {
                     <TableHead sx={{ bgcolor: '#eee' }}>
                         <TableRow>
                             <TableCell>ID</TableCell>
-                            <TableCell>Invoice #</TableCell> {/* 👈 NEW COLUMN */}
+                            <TableCell>Invoice #</TableCell> 
                             <TableCell>Vendor</TableCell>
                             <TableCell>Date</TableCell>
                             <TableCell>Amount</TableCell>
@@ -94,7 +94,6 @@ function Archive() {
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {/* 👇 THIS LOGIC HANDLES THE PAGINATION SLICING */}
                         {filteredInvoices
                             .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                             .map((invoice) => (
@@ -131,7 +130,7 @@ function Archive() {
                                             <Tooltip title="Download PDF">
                                                 <IconButton 
                                                     color="primary" 
-                                                    onClick={() => window.open(`http://localhost:8080/api/invoices/file/${invoice.fileUrl}`, '_blank')}
+                                                    onClick={() => window.open(`http://pivikmanager-env.eba-eybupv2n.us-east-1.elasticbeanstalk.com/api/invoices/file/${invoice.fileUrl}`, '_blank')}
                                                 >
                                                     <DownloadIcon />
                                                 </IconButton>
@@ -147,7 +146,7 @@ function Archive() {
                 </Table>
             </TableContainer>
             
-            {/* 👇 PAGINATION CONTROLS */}
+            {/* Pagination controls */}
             <TablePagination
                 rowsPerPageOptions={[5, 10, 25]}
                 component="div"

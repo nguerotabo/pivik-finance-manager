@@ -10,7 +10,7 @@ function FedUp() {
   const BUDGET_LIMIT = 30000; // The $30k budget
 
   useEffect(() => {
-    fetch('http://localhost:8080/api/invoices')
+    fetch('http://pivikmanager-env.eba-eybupv2n.us-east-1.elasticbeanstalk.com/api/invoices')
       .then(res => res.json())
       .then(data => {
         // Only keep invoices tagged as "FED UP"

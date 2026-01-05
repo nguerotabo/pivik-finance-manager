@@ -29,7 +29,7 @@ function Dashboard() {
   const [editForm, setEditForm] = useState({ vendor: '', invoiceNumber: '', amount: '', date: '', category: '' });
 
   const fetchInvoices = () => {
-    fetch('http://localhost:8080/api/invoices')
+    fetch('http://pivikmanager-env.eba-eybupv2n.us-east-1.elasticbeanstalk.com/api/invoices')
       .then(response => response.json())
       .then(data => {
         const sortedData = data.sort((a, b) => b.id - a.id);
@@ -49,7 +49,7 @@ function Dashboard() {
     const formData = new FormData();
     formData.append("file", file);
 
-    fetch('http://localhost:8080/api/invoices/upload', {
+    fetch('http://pivikmanager-env.eba-eybupv2n.us-east-1.elasticbeanstalk.com/api/invoices/upload', {
       method: 'POST',
       body: formData,
     })
@@ -62,13 +62,13 @@ function Dashboard() {
 
   const handleDelete = (id) => {
     if(window.confirm("Delete this invoice?")) {
-        fetch(`http://localhost:8080/api/invoices/${id}`, { method: 'DELETE' })
+        fetch(`http://pivikmanager-env.eba-eybupv2n.us-east-1.elasticbeanstalk.com/api/invoices/${id}`, { method: 'DELETE' })
         .then(() => fetchInvoices());
     }
   };
 
   const handleMarkPaid = (id) => {
-    fetch(`http://localhost:8080/api/invoices/${id}/status?status=PAID`, { method: 'PUT' })
+    fetch(`http://pivikmanager-env.eba-eybupv2n.us-east-1.elasticbeanstalk.com/api/invoices/${id}/status?status=PAID`, { method: 'PUT' })
     .then(() => fetchInvoices());
   };
 
@@ -89,7 +89,7 @@ function Dashboard() {
 
   // SAVE CHANGES
   const handleSaveEdit = () => {
-    fetch(`http://localhost:8080/api/invoices/${currentInvoice.id}`, {
+    fetch(`http://pivikmanager-env.eba-eybupv2n.us-east-1.elasticbeanstalk.com/api/invoices/${currentInvoice.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(editForm)
@@ -183,14 +183,14 @@ function Dashboard() {
             
             <Button 
                 variant="outlined" color="secondary" size="small"
-                onClick={() => window.location.href = `http://localhost:8080/api/invoices/report?startDate=${startDate}&endDate=${endDate}`}
+                onClick={() => window.location.href = `http://pivikmanager-env.eba-eybupv2n.us-east-1.elasticbeanstalk.com/api/invoices/report?startDate=${startDate}&endDate=${endDate}`}
             >
                 PDF Only
             </Button>
 
             <Button 
                 variant="contained" color="secondary" size="small"
-                onClick={() => window.location.href = `http://localhost:8080/api/invoices/export-zip?startDate=${startDate}&endDate=${endDate}`}
+                onClick={() => window.location.href = `http://pivikmanager-env.eba-eybupv2n.us-east-1.elasticbeanstalk.com/api/invoices/export-zip?startDate=${startDate}&endDate=${endDate}`}
             >
                 Download Bundle
             </Button>

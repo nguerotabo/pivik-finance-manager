@@ -9,11 +9,14 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
-        // 🔓 Allow everything from the frontend
+        // Allow everything from the frontend
         registry.addMapping("/**")
-                .allowedOrigins("http://localhost:5173") 
+                .allowedOrigins("http://localhost:5173",
+                    "http://pivik-frontend-tabo.s3-website-us-east-1.amazonaws.com"
+                ) 
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                 .allowedHeaders("*")
                 .allowCredentials(true);
+                
     }
 }

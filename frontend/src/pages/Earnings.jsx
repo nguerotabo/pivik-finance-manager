@@ -18,14 +18,14 @@ function Earnings() {
 
   // 1. Fetch Earnings
   const fetchEarnings = () => {
-    fetch('http://localhost:8080/api/earnings')
+    fetch('http://pivikmanager-env.eba-eybupv2n.us-east-1.elasticbeanstalk.com/api/earnings')
       .then(res => res.json())
       .then(data => setEarnings(data));
   };
 
   // 2. Fetch Expenses (Invoices)
   const fetchExpenses = () => {
-    fetch('http://localhost:8080/api/invoices')
+    fetch('http://pivikmanager-env.eba-eybupv2n.us-east-1.elasticbeanstalk.com/api/invoices')
       .then(res => res.json())
       .then(data => setExpenses(data));
   };
@@ -41,7 +41,7 @@ function Earnings() {
 
     const newEarning = { date, amount: parseFloat(amount), source };
 
-    fetch('http://localhost:8080/api/earnings', {
+    fetch('http://pivikmanager-env.eba-eybupv2n.us-east-1.elasticbeanstalk.com/api/earnings', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(newEarning)
@@ -53,7 +53,7 @@ function Earnings() {
 
   const handleDelete = (id) => {
       if(window.confirm("Delete this entry?")) {
-        fetch(`http://localhost:8080/api/earnings/${id}`, { method: 'DELETE' })
+        fetch(`http://pivikmanager-env.eba-eybupv2n.us-east-1.elasticbeanstalk.com/api/earnings/${id}`, { method: 'DELETE' })
         .then(fetchEarnings);
       }
   };

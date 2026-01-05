@@ -6,7 +6,7 @@ function Suppliers() {
   const [vendorData, setVendorData] = useState([]);
 
   useEffect(() => {
-    fetch('http://localhost:8080/api/invoices')
+    fetch('http://pivikmanager-env.eba-eybupv2n.us-east-1.elasticbeanstalk.com/api/invoices')
       .then(response => response.json())
       .then(data => {
         processData(data);
